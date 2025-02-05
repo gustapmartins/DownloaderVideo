@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework Condition=" '$(TargetFramework)' == '' ">net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoFixture" Version="4.18.1" />
+    <PackageReference Include="Moq" Version="4.20.72" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DownloaderVideo.Application\DownloaderVideo.Application.csproj" />
+    <ProjectReference Include="..\DownloaderVideo.CrossCutting\DownloaderVideo.Infra.CrossCutting.csproj" />
+    <ProjectReference Include="..\DownloaderVideo.Data\DownloaderVideo.Infra.Data.csproj" />
+    <ProjectReference Include="..\DownloaderVideo.Domain\DownloaderVideo.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,8 @@
+services:
+  downloadervideo.application:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:443;http://+:80
+    ports:
+      - "80"
+      - "443"
