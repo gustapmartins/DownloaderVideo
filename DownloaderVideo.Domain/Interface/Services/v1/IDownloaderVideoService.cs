@@ -6,5 +6,7 @@ public interface IDownloaderVideoService
 {
     OperationResult<List<DownloaderVideoEntity>> GetAvailableQualities(string url);
 
-    Task<OperationResult<byte[]>> DownloadVideo(string url, string quality);
+    Task<OperationResult<string>> DownloadVideo(string url, string quality);
+
+    Task<OperationResult<string>> GetVideoDownloadUrl(string fileName);
 }

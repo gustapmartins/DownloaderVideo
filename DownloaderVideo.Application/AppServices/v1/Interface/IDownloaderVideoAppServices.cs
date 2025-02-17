@@ -4,7 +4,9 @@ namespace DownloaderVideo.Application.AppServices.v1.Interfaces;
 
 public interface IDownloaderVideoAppServices
 {
-    Task<OperationResult<byte[]>> DownloadVideo(string url, string quality);
+    Task<OperationResult<string>> DownloadVideo(string url, string quality);
 
     OperationResult<List<DownloaderVideoEntity>> GetAvailableQualities(string url);
+
+    Task<OperationResult<string>> GetVideoDownloadUrl(string fileName);
 }

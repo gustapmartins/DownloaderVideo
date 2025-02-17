@@ -1,13 +1,9 @@
 using DownloaderVideo.Application.AppServices.v1.Interfaces;
-using DownloaderVideo.Application.Dto.v1;
 using DownloaderVideo.Domain.Entity;
 using DownloaderVideo.Domain.Interface.Services.v1;
 using DownloaderVideo.Domain.Validation;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
-using System.Diagnostics;
-using System.Net;
-using YoutubeExplode;
 
 namespace DownloaderVideo.Application.Controllers.v1;
 
@@ -40,18 +36,31 @@ public class DownloaderVideoController : BaseController
     /// <returns>IActionResult</returns>
     /// <response code="200">Caso seja feita com sucesso</response>
     /// <response code="204">Caso não passe nenhuma url</response>
-    [HttpGet("download")]
+    [HttpPost("downloadVideo")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [SwaggerOperation(Summary = "Baixa um vídeo na qualidade selecionada.")]
     public async Task<IActionResult> DownloadVideo([FromQuery] string url, [FromQuery] string quality)
     {
-        OperationResult<byte[]> result = await _generateTemplateAppService.DownloadVideo(url, quality);
+        OperationResult<string> result = await _generateTemplateAppService.DownloadVideo(url, quality);
 
         if (HasNotifications())
             return ResponseResult(result);
         if (result.Content is not null)
-            return File(result.Content, "application/octet-stream", result.Message);
+            return Ok(result);
+        else
+            return NoContent();
+    }
+
+    [HttpGet("GetDownload/{fileName}")]
+    public async Task<IActionResult> DownloadFile(string fileName)
+    {
+        OperationResult<string> result = await _generateTemplateAppService.GetVideoDownloadUrl(fileName);
+
+        if (HasNotifications())
+            return ResponseResult(result);
+        if (result.Content is not null)
+            return PhysicalFile(result.Content, "video/mp4", Path.GetFileName(result.Content));
         else
             return NoContent();
     }
