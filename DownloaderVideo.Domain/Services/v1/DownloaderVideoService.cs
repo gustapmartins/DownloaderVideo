@@ -1,25 +1,23 @@
 using DownloaderVideo.Domain.Entity;
 using DownloaderVideo.Domain.Interface.Services.v1;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
 using MongoDB.Driver;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using YoutubeExplode;
 
 namespace DownloaderVideo.Application.Controllers.v1;
 
 public class DownloaderVideoService : IDownloaderVideoService
 {
-
-    private readonly IConfiguration _configuration;
     private readonly INotificationBase _notificationBase;
+    private readonly YoutubeClient _youtubeClient;
 
     public DownloaderVideoService(
-        IConfiguration configuration,
         INotificationBase notificationBase)
     {
-        _configuration = configuration;
         _notificationBase = notificationBase;
+        _youtubeClient = new YoutubeClient();
     }
 
     public async Task<OperationResult<string>> GetVideoDownloadUrl(string fileName)
@@ -44,17 +42,11 @@ public class DownloaderVideoService : IDownloaderVideoService
                 return null;
             }
 
-            return new OperationResult<string>()
-            {
-                Content = filePath.Trim(),
-                Message = "Video encontrado com sucesso",
-                Status = true,
-                StatusCode = StatusCodes.Status200OK
-            };
+            return ResponseObject(filePath.Trim(), "Video encontrado com sucesso", true, StatusCodes.Status200OK);
         }
         catch (Exception ex)
         {
-            return ResponseObject<string>(string.Empty, $"Erro ao baixar o vídeo: {ex.Message}", StatusCodes.Status500InternalServerError, false);
+            return ResponseObject<string>(string.Empty, $"Erro ao baixar o vídeo: {ex.Message}", false, StatusCodes.Status500InternalServerError);
         }
     }
 
@@ -64,42 +56,23 @@ public class DownloaderVideoService : IDownloaderVideoService
         {
             string ytDlpPath = @"C:\yt-dlp\yt-dlp.exe"; // Caminho do yt-dlp
 
-            // Obtém o diretório temporário do sistema
-            string tempDirectory = Path.GetTempPath();
-
             // Define o caminho de saída do arquivo na pasta de vídeos
-            string outputFilePath = Path.Combine(tempDirectory, $"{Guid.NewGuid()}.mp4");
+            string outputFilePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.mp4");
 
-            var process = new Process
-            {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = ytDlpPath,
-                    Arguments = $"-f \"{quality}+bestaudio\" -o \"{outputFilePath}\" \"{url}\"",
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                }
-            };
+            string arguments = $"-f \"{quality}+bestaudio\" -o \"{outputFilePath}\" \"{url}\"";
 
-            process.Start();
-            string output = process.StandardOutput.ReadToEnd();
-            string errorOutput = process.StandardError.ReadToEnd();  // Captura a saída de erro
-            process.WaitForExit();
+            string output = RunYtDlp(arguments);
+
+            var filename = await _youtubeClient.Videos.GetAsync(url);
+            string videoTitle = filename.Title.Replace(" ", "_").Replace("|", "").Replace("\"", "").Replace("'", "").Replace("/", "").Replace("\\", ""); // Limpeza do nome
 
             string downloadLink = $"http://localhost:7155/api/v1/DownloaderVideo/GetDownload/{Path.GetFileName(outputFilePath)}";
 
-            return new OperationResult<string>() {
-                Content = downloadLink.Trim(),
-                Message = "Download concluido com sucesso",
-                Status = true,
-                StatusCode = StatusCodes.Status200OK
-            };
+            return ResponseObject(downloadLink.Trim(), videoTitle, true, StatusCodes.Status200OK);
         }
         catch (Exception ex)
         {
-            throw new Exception($"Erro ao obter a URL do vídeo: {ex.Message}");
+            return ResponseObject(string.Empty, $"Erro ao obter a URL do vídeo: {ex.Message}", true, StatusCodes.Status500InternalServerError);
         }
     }
 
@@ -107,7 +80,9 @@ public class DownloaderVideoService : IDownloaderVideoService
     {
         try
         {
-            string output = RunYtDlp(url);
+            string arguments = $"--list-formats \"{url}\"";
+
+            string output = RunYtDlp(arguments);
 
             var uniqueResolutions = new Dictionary<string, DownloaderVideoEntity>();
 
@@ -133,7 +108,9 @@ public class DownloaderVideoService : IDownloaderVideoService
                             uniqueResolutions[resolution] = new DownloaderVideoEntity
                             {
                                 Id = id,
-                                Resolution = resolution
+                                Resolution = resolution,
+                                Codec = codec,
+                                Format = format
                             };
                         }
                     }
@@ -144,27 +121,27 @@ public class DownloaderVideoService : IDownloaderVideoService
                 .OrderBy(q => int.Parse(Regex.Replace(q.Resolution, @"[^\d]", "")))
                 .ToList();
 
-            return ResponseObject(qualities, "Qualidades disponíveis (MP4 - H.264)", StatusCodes.Status200OK, true);
+            return ResponseObject(qualities, "Qualidades disponíveis (MP4 - H.264)", true, StatusCodes.Status200OK);
         }
         catch (Exception ex)
         {
-            throw new Exception($"Erro ao listar as qualidades: {ex.Message}");
+            return ResponseObject(new List<DownloaderVideoEntity>(), $"Erro ao listar as qualidades: {ex.Message}", false, StatusCodes.Status500InternalServerError);
         }
     }
 
     #region Metodos privados 
-    private string RunYtDlp(string url)
+    private string RunYtDlp(string arguments)
     {
         try
         {
-            string ytDlpPath = @"C:\Users\gusta\Downloads\yt-dlp.exe";  // Altere conforme necessário
+            string ytDlpPath = @"C:\yt-dlp\yt-dlp.exe";  // Altere conforme necessário
 
             var process = new Process
             {
                 StartInfo = new ProcessStartInfo
                 {
                     FileName = ytDlpPath,
-                    Arguments = $"--list-formats \"{url}\"",  // Listar formatos disponíveis
+                    Arguments = arguments,  // Listar formatos disponíveis
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                     UseShellExecute = false,
@@ -182,7 +159,7 @@ public class DownloaderVideoService : IDownloaderVideoService
                 throw new Exception($"Erro no yt-dlp: {errorOutput}");
             }
 
-            return output; // Retorna os formatos disponíveis
+            return output;
 
         }
         catch (Exception ex)
@@ -191,7 +168,7 @@ public class DownloaderVideoService : IDownloaderVideoService
         }
     }
 
-    private OperationResult<T> ResponseObject<T>(T content, string message, int statusCode, bool status)
+    private OperationResult<T> ResponseObject<T>(T content, string message, bool status, int statusCode)
     {
         return new OperationResult<T>()
         {

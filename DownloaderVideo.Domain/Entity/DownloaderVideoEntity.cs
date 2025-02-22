@@ -10,22 +10,37 @@ namespace DownloaderVideo.Domain.Entity;
 public class DownloaderVideoEntity : IEntity<string>
 {
     /// <summary>
-    /// Obtém ou define o ID do objeto.
+    /// Obtém o id que corresponde a resolução do video.
     /// </summary>
-    [BsonId] // Atributo que indica que esta propriedade é o ID do documento no MongoDB
-    [BsonRepresentation(MongoDB.Bson.BsonType.ObjectId)] // Representação do tipo de dados ObjectId do MongoDB
+    [BsonId]
+    [BsonRepresentation(MongoDB.Bson.BsonType.ObjectId)]
     public string Id { get; set; } = string.Empty;
 
     /// <summary>
-    /// Obtém ou define o ID do objeto.
+    /// Obtém Resolução do video.
     /// </summary>
-    [BsonElement("Name")] // Atributo que indica que esta propriedade é o ID do documento no MongoDB
-    [BsonRepresentation(MongoDB.Bson.BsonType.String)] // Representação do tipo de dados ObjectId do MongoDB
+    [BsonElement("Name")]
+    [BsonRepresentation(MongoDB.Bson.BsonType.String)]
     public string Resolution { get; set; } = string.Empty;
 
     /// <summary>
-    /// Obtém ou define a data de criação do objeto.
+    /// Obtém o codec do video.
     /// </summary>
-    [BsonElement("DateCreated")] // Atributo que mapeia essa propriedade para o campo 'DateCreated' no MongoDB
+    [BsonElement("Codec")]
+    [BsonRepresentation(MongoDB.Bson.BsonType.String)]
+    public string Codec { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Obtém o formato do video.
+    /// </summary>
+    [BsonElement("Format")]
+    [BsonRepresentation(MongoDB.Bson.BsonType.String)]
+    public string Format { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Data de criação do objeto.
+    /// </summary>
+    [BsonElement("DateCreated")]
+    [BsonRepresentation(MongoDB.Bson.BsonType.DateTime)]
     public DateTime DateCreated { get; set; }
 }

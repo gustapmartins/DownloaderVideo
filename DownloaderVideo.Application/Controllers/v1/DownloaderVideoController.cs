@@ -1,4 +1,5 @@
 using DownloaderVideo.Application.AppServices.v1.Interfaces;
+using DownloaderVideo.Application.Static;
 using DownloaderVideo.Domain.Entity;
 using DownloaderVideo.Domain.Interface.Services.v1;
 using DownloaderVideo.Domain.Validation;
@@ -42,6 +43,11 @@ public class DownloaderVideoController : BaseController
     [SwaggerOperation(Summary = "Baixa um vídeo na qualidade selecionada.")]
     public async Task<IActionResult> DownloadVideo([FromQuery] string url, [FromQuery] string quality)
     {
+        if (string.IsNullOrWhiteSpace(url) || !VideoUrlValidator.IsValidYouTubeUrl(url))
+        {
+            return BadRequest("A URL fornecida não é válida.");
+        }
+
         OperationResult<string> result = await _generateTemplateAppService.DownloadVideo(url, quality);
 
         if (HasNotifications())
@@ -77,6 +83,11 @@ public class DownloaderVideoController : BaseController
     [SwaggerOperation(Summary = "Baixa um vídeo na qualidade selecionada.")]
     public IActionResult DownloadVideo([FromQuery] string url)
     {
+        if (string.IsNullOrWhiteSpace(url) || !VideoUrlValidator.IsValidYouTubeUrl(url))
+        {
+            return BadRequest("A URL fornecida não é válida.");
+        }
+
         OperationResult<List<DownloaderVideoEntity>> result = _generateTemplateAppService.GetAvailableQualities(url);
 
         if (HasNotifications())
