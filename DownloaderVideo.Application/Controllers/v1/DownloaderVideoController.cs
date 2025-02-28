@@ -93,7 +93,7 @@ public class DownloaderVideoController : BaseController
         if (HasNotifications())
             return ResponseResult(result);
         if (result.Content is not null)
-            return Ok(result.Content);
+            return Ok(result);
         else
             return NoContent();
     }
