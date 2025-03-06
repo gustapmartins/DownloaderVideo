@@ -1,3 +1,4 @@
+using AngleSharp;
 using DownloaderVideo.Domain.Entity;
 using DownloaderVideo.Domain.Interface.Services.v1;
 using Microsoft.AspNetCore.Http;
@@ -46,7 +47,7 @@ public class DownloaderVideoService : IDownloaderVideoService
         }
         catch (Exception ex)
         {
-            return ResponseObject<string>(string.Empty, $"Erro ao baixar o vídeo: {ex.Message}", false, StatusCodes.Status500InternalServerError);
+            return ResponseObject(string.Empty, $"Erro ao baixar o vídeo: {ex.Message}", false, StatusCodes.Status500InternalServerError);
         }
     }
 
@@ -54,21 +55,17 @@ public class DownloaderVideoService : IDownloaderVideoService
     {
         try
         {
-            string ytDlpPath = @"C:\yt-dlp\yt-dlp.exe"; // Caminho do yt-dlp
+            var filename = await _youtubeClient.Videos.GetAsync(url);
 
-            // Define o caminho de saída do arquivo na pasta de vídeos
-            string outputFilePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.mp4");
+            string videoTitle = filename.Title.Replace(" ", "_").Replace("|", "").Replace("\"", "").Replace("'", "").Replace("/", "").Replace("\\", ""); // Limpeza do nome
+
+            string outputFilePath = Path.Combine(Path.GetTempPath(), $"{videoTitle}.mp4");
 
             string arguments = $"-f \"{quality}+bestaudio\" -o \"{outputFilePath}\" \"{url}\"";
 
             string output = RunYtDlp(arguments);
 
-            var filename = await _youtubeClient.Videos.GetAsync(url);
-            string videoTitle = filename.Title.Replace(" ", "_").Replace("|", "").Replace("\"", "").Replace("'", "").Replace("/", "").Replace("\\", ""); // Limpeza do nome
-
-            string downloadLink = $"http://localhost:7155/api/v1/DownloaderVideo/GetDownload/{Path.GetFileName(outputFilePath)}";
-
-            return ResponseObject(downloadLink.Trim(), videoTitle, true, StatusCodes.Status200OK);
+            return ResponseObject(videoTitle.Trim(), $"Video baixado com sucesso", true, StatusCodes.Status200OK);
         }
         catch (Exception ex)
         {

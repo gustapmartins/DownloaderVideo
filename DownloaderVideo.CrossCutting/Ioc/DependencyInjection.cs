@@ -1,6 +1,5 @@
 ﻿using DownloaderVideo.Domain.Entity;
 using DownloaderVideo.Domain.Exceptions;
-using DownloaderVideo.Infra.CrossCutting.Configuration;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.Extensions.Configuration;
