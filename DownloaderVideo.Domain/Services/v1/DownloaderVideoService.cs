@@ -1,7 +1,7 @@
-using AngleSharp;
 using DownloaderVideo.Domain.Entity;
 using DownloaderVideo.Domain.Interface.Services.v1;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
@@ -33,7 +33,6 @@ public class DownloaderVideoService : IDownloaderVideoService
 
             string tempDirectory = Path.GetTempPath();
 
-            // Buscar arquivos que contenham o nome fornecido, ignorando maiúsculas/minúsculas
             string filePath = Directory.GetFiles(tempDirectory)
                 .FirstOrDefault(f => Path.GetFileName(f).Contains(fileName, StringComparison.OrdinalIgnoreCase));
 
@@ -157,7 +156,6 @@ public class DownloaderVideoService : IDownloaderVideoService
             }
 
             return output;
-
         }
         catch (Exception ex)
         {

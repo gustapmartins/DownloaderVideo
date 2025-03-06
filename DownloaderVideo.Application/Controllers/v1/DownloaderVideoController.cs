@@ -17,7 +17,6 @@ namespace DownloaderVideo.Application.Controllers.v1;
 [ProducesResponseType(StatusCodes.Status500InternalServerError)]
 public class DownloaderVideoController : BaseController
 {
-
     private readonly ILogger<DownloaderVideoController> _logger;
     private readonly IDownloaderVideoAppServices _generateTemplateAppService;
 
@@ -29,7 +28,6 @@ public class DownloaderVideoController : BaseController
         _logger = logger;
         _generateTemplateAppService = appService;
     }
-
 
     /// <summary>
     ///   Baixar um vídeo do YouTube
