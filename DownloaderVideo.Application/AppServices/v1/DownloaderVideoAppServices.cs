@@ -20,21 +20,15 @@ public class DownloaderVideoAppServices : IDownloaderVideoAppServices
         _generateTemplateService = generateTemplateService;
     }
 
-    public async Task<OperationResult<string>> DownloadVideo(string url, string quality)
+    public OperationResult<Stream> DownloadVideo(string url, string quality)
     {
-        OperationResult<string> result = await _generateTemplateService.DownloadVideo(url, quality);
+        OperationResult<Stream> result = _generateTemplateService.DownloadVideo(url, quality);
         return result;
     }
 
     public OperationResult<List<DownloaderVideoEntity>> GetAvailableQualities(string url)
     {
         OperationResult<List<DownloaderVideoEntity>> result = _generateTemplateService.GetAvailableQualities(url);
-        return result;
-    }
-
-    public async Task<OperationResult<string>> GetVideoDownloadUrl(string fileName)
-    {
-        OperationResult<string> result = await _generateTemplateService.GetVideoDownloadUrl(fileName);
         return result;
     }
 }

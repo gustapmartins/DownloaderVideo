@@ -1,7 +1,6 @@
 using DownloaderVideo.Domain.Entity;
 using DownloaderVideo.Domain.Interface.Services.v1;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
@@ -21,54 +20,19 @@ public class DownloaderVideoService : IDownloaderVideoService
         _youtubeClient = new YoutubeClient();
     }
 
-    public async Task<OperationResult<string>> GetVideoDownloadUrl(string fileName)
+    public OperationResult<Stream> DownloadVideo(string url, string quality)
     {
         try
         {
-            if (string.IsNullOrWhiteSpace(fileName) || fileName.Contains("..") || fileName.Contains("/") || fileName.Contains("\\"))
-            {
-                await _notificationBase.NotifyAsync($"Nome do arquivo: {fileName}", "Nome do arquivo inválido.");
-                return null;
-            }
+            string arguments = $"-f \"{quality}+bestaudio\" -o - \"{url}\"";
 
-            string tempDirectory = Path.GetTempPath();
+            Stream output = RunYtDlp<Stream>(arguments);
 
-            string filePath = Directory.GetFiles(tempDirectory)
-                .FirstOrDefault(f => Path.GetFileName(f).Contains(fileName, StringComparison.OrdinalIgnoreCase));
-
-            if (string.IsNullOrEmpty(filePath))
-            {
-                await _notificationBase.NotifyAsync($"Nome do arquivo: {fileName}", "Arquivo não encontrado.");
-                return null;
-            }
-
-            return ResponseObject(filePath.Trim(), "Video encontrado com sucesso", true, StatusCodes.Status200OK);
+            return ResponseObject(output, $"Video baixado com sucesso", true, StatusCodes.Status200OK);
         }
         catch (Exception ex)
         {
-            return ResponseObject(string.Empty, $"Erro ao baixar o vídeo: {ex.Message}", false, StatusCodes.Status500InternalServerError);
-        }
-    }
-
-    public async Task<OperationResult<string>> DownloadVideo(string url, string quality)
-    {
-        try
-        {
-            var filename = await _youtubeClient.Videos.GetAsync(url);
-
-            string videoTitle = filename.Title.Replace(" ", "_").Replace("|", "").Replace("\"", "").Replace("'", "").Replace("/", "").Replace("\\", ""); // Limpeza do nome
-
-            string outputFilePath = Path.Combine(Path.GetTempPath(), $"{videoTitle}.mp4");
-
-            string arguments = $"-f \"{quality}+bestaudio\" -o \"{outputFilePath}\" \"{url}\"";
-
-            string output = RunYtDlp(arguments);
-
-            return ResponseObject(videoTitle.Trim(), $"Video baixado com sucesso", true, StatusCodes.Status200OK);
-        }
-        catch (Exception ex)
-        {
-            return ResponseObject(string.Empty, $"Erro ao obter a URL do vídeo: {ex.Message}", true, StatusCodes.Status500InternalServerError);
+            return ResponseObject(Stream.Null, $"Erro ao obter a URL do vídeo: {ex.Message}", true, StatusCodes.Status500InternalServerError);
         }
     }
 
@@ -78,7 +42,7 @@ public class DownloaderVideoService : IDownloaderVideoService
         {
             string arguments = $"--list-formats \"{url}\"";
 
-            string output = RunYtDlp(arguments);
+            string output = RunYtDlp<string>(arguments);
 
             var uniqueResolutions = new Dictionary<string, DownloaderVideoEntity>();
 
@@ -125,37 +89,48 @@ public class DownloaderVideoService : IDownloaderVideoService
         }
     }
 
-    #region Metodos privados 
-    private string RunYtDlp(string arguments)
+    #region Metodos privados
+
+    private T RunYtDlp<T>(string arguments)
     {
         try
         {
-            string ytDlpPath = @"C:\yt-dlp\yt-dlp.exe";  // Altere conforme necessário
+            string ytDlpPath = @"C:\yt-dlp\yt-dlp.exe";  // Caminho do yt-dlp
 
-            var process = new Process
+            var processStartInfo = new ProcessStartInfo
             {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = ytDlpPath,
-                    Arguments = arguments,  // Listar formatos disponíveis
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                }
+                FileName = ytDlpPath,
+                Arguments = arguments,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
             };
 
+            var process = new Process { StartInfo = processStartInfo };
             process.Start();
-            string output = process.StandardOutput.ReadToEnd();
-            string errorOutput = process.StandardError.ReadToEnd();  // Captura a saída de erro
-            process.WaitForExit();
 
-            if (!string.IsNullOrEmpty(errorOutput))
+            if (typeof(T) == typeof(Stream))
             {
-                throw new Exception($"Erro no yt-dlp: {errorOutput}");
+                return (T)(object)process.StandardOutput.BaseStream;  // Retorna Stream
             }
+            else if (typeof(T) == typeof(string))
+            {
+                string output = process.StandardOutput.ReadToEnd();
+                string errorOutput = process.StandardError.ReadToEnd();
+                process.WaitForExit();
 
-            return output;
+                if (!string.IsNullOrEmpty(errorOutput))
+                {
+                    throw new Exception($"Erro no yt-dlp: {errorOutput}");
+                }
+
+                return (T)(object)output.Trim();  // Retorna string
+            }
+            else
+            {
+                throw new InvalidOperationException("Tipo de retorno inválido.");
+            }
         }
         catch (Exception ex)
         {
