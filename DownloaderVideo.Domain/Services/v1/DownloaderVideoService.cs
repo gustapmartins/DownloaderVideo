@@ -36,7 +36,7 @@ public class DownloaderVideoService : IDownloaderVideoService
         }
     }
 
-    public async Task<OperationResult<List<DownloaderVideoEntity>>> GetAvailableQualitiesAsync(string url)
+    public async Task<OperationResult<List<DownloaderVideoEntity>>> GetAvailableQualitiesAsync(string url) 
     {
         try
         {
