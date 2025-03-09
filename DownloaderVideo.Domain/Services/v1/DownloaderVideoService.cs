@@ -81,9 +81,10 @@ public class DownloaderVideoService : IDownloaderVideoService
                 .OrderBy(q => int.Parse(Regex.Replace(q.Resolution, @"[^\d]", "")))
                 .ToList();
 
-            var filenameVideo = await _youtubeClient.Videos.GetAsync(url);
+            var filename = await _youtubeClient.Videos.GetAsync(url);
+            string videoTitle = filename.Title.Replace(" ", "_").Replace("|", "").Replace("\"", "").Replace("'", "").Replace("/", "").Replace("\\", "");
 
-            return ResponseObject(qualities, filenameVideo.Title, true, StatusCodes.Status200OK);
+            return ResponseObject(qualities, videoTitle, true, StatusCodes.Status200OK);
         }
         catch (Exception ex)
         {
