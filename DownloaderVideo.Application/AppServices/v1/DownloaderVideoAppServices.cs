@@ -26,9 +26,9 @@ public class DownloaderVideoAppServices : IDownloaderVideoAppServices
         return result;
     }
 
-    public OperationResult<List<DownloaderVideoEntity>> GetAvailableQualities(string url)
+    public async Task<OperationResult<List<DownloaderVideoEntity>>> GetAvailableQualities(string url)
     {
-        OperationResult<List<DownloaderVideoEntity>> result = _generateTemplateService.GetAvailableQualities(url);
+        OperationResult<List<DownloaderVideoEntity>> result = await _generateTemplateService.GetAvailableQualitiesAsync(url);
         return result;
     }
 }

@@ -36,7 +36,7 @@ public class DownloaderVideoService : IDownloaderVideoService
         }
     }
 
-    public OperationResult<List<DownloaderVideoEntity>> GetAvailableQualities(string url)
+    public async Task<OperationResult<List<DownloaderVideoEntity>>> GetAvailableQualitiesAsync(string url)
     {
         try
         {
@@ -81,7 +81,9 @@ public class DownloaderVideoService : IDownloaderVideoService
                 .OrderBy(q => int.Parse(Regex.Replace(q.Resolution, @"[^\d]", "")))
                 .ToList();
 
-            return ResponseObject(qualities, "Qualidades disponíveis (MP4 - H.264)", true, StatusCodes.Status200OK);
+            var filenameVideo = await _youtubeClient.Videos.GetAsync(url);
+
+            return ResponseObject(qualities, filenameVideo.Title, true, StatusCodes.Status200OK);
         }
         catch (Exception ex)
         {

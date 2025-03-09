@@ -72,14 +72,14 @@ public class DownloaderVideoController : BaseController
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [SwaggerOperation(Summary = "Baixa um vídeo na qualidade selecionada.")]
-    public IActionResult GetAvailableQualities([FromQuery] string url)
+    public async Task<IActionResult> GetAvailableQualities([FromQuery] string url)
     {
         if (string.IsNullOrWhiteSpace(url) || !VideoUrlValidator.IsValidYouTubeUrl(url))
         {
             return BadRequest("A URL fornecida não é válida.");
         }
 
-        OperationResult<List<DownloaderVideoEntity>> result = _generateTemplateAppService.GetAvailableQualities(url);
+        OperationResult<List<DownloaderVideoEntity>> result = await _generateTemplateAppService.GetAvailableQualitiesAsync(url);
 
         if (HasNotifications())
             return ResponseResult(result);
