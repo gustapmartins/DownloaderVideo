@@ -17,7 +17,6 @@ namespace DownloaderVideo.Application.Controllers.v1;
 [ProducesResponseType(StatusCodes.Status500InternalServerError)]
 public class DownloaderVideoController : BaseController
 {
-
     private readonly ILogger<DownloaderVideoController> _logger;
     private readonly IDownloaderVideoAppServices _generateTemplateAppService;
 
@@ -30,7 +29,6 @@ public class DownloaderVideoController : BaseController
         _generateTemplateAppService = appService;
     }
 
-
     /// <summary>
     ///   Baixar um vídeo do YouTube
     /// </summary>
@@ -41,32 +39,25 @@ public class DownloaderVideoController : BaseController
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [SwaggerOperation(Summary = "Baixa um vídeo na qualidade selecionada.")]
-    public async Task<IActionResult> DownloadVideo([FromQuery] string url, [FromQuery] string quality)
+    public IActionResult DownloadVideo([FromQuery] string url, [FromQuery] string quality)
     {
         if (string.IsNullOrWhiteSpace(url) || !VideoUrlValidator.IsValidYouTubeUrl(url))
         {
             return BadRequest("A URL fornecida não é válida.");
         }
 
-        OperationResult<string> result = await _generateTemplateAppService.DownloadVideo(url, quality);
+        OperationResult<Stream> result = _generateTemplateAppService.DownloadVideo(url, quality);
 
         if (HasNotifications())
             return ResponseResult(result);
         if (result.Content is not null)
-            return Ok(result);
-        else
-            return NoContent();
-    }
+        {
+            string fileName = $"video_{DateTime.Now:yyyyMMddHHmmss}.mp4";
+            Response.Headers.Add("Content-Disposition", $"attachment; filename=\"{fileName}\"");
+            Response.Headers.Add("Content-Type", "video/mp4");
 
-    [HttpGet("GetDownload/{fileName}")]
-    public async Task<IActionResult> DownloadFile(string fileName)
-    {
-        OperationResult<string> result = await _generateTemplateAppService.GetVideoDownloadUrl(fileName);
-
-        if (HasNotifications())
-            return ResponseResult(result);
-        if (result.Content is not null)
-            return PhysicalFile(result.Content, "video/mp4", Path.GetFileName(result.Content));
+            return new FileStreamResult(result.Content, "video/mp4");
+        }
         else
             return NoContent();
     }
@@ -81,14 +72,14 @@ public class DownloaderVideoController : BaseController
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [SwaggerOperation(Summary = "Baixa um vídeo na qualidade selecionada.")]
-    public IActionResult DownloadVideo([FromQuery] string url)
+    public async Task<IActionResult> GetAvailableQualitiesAsync([FromQuery] string url)
     {
         if (string.IsNullOrWhiteSpace(url) || !VideoUrlValidator.IsValidYouTubeUrl(url))
         {
             return BadRequest("A URL fornecida não é válida.");
         }
 
-        OperationResult<List<DownloaderVideoEntity>> result = _generateTemplateAppService.GetAvailableQualities(url);
+        OperationResult<List<DownloaderVideoEntity>> result = await _generateTemplateAppService.GetAvailableQualitiesAsync(url);
 
         if (HasNotifications())
             return ResponseResult(result);
