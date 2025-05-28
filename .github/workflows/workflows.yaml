@@ -17,6 +17,12 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Download Validator Results Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: validator-results
+          path: DownloaderVideo.Application/tools/
+
       - name: Install PowerShell
         run: sudo apt-get install -y powershell
 
