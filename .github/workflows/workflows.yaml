@@ -90,17 +90,14 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Prepare tools directory
-        run: mkdir -p DownloaderVideo.Application/tools
-
-      - name: Download yt-dlp binary
-        run: curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o DownloaderVideo.Application/tools/yt-dlp
-
-      - name: Make yt-dlp executable
-        run: chmod +x DownloaderVideo.Application/tools/yt-dlp
-
-      - name: Install ffmpeg
-        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: Download yt-dlp and ffmpeg
+        run: |
+          mkdir -p DownloaderVideo.Application/tools
+          curl -L -o DownloaderVideo.Application/tools/yt-dlp.exe https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe
+          curl -L -o DownloaderVideo.Application/tools/ffmpeg.zip https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip
+          unzip DownloaderVideo.Application/tools/ffmpeg.zip -d DownloaderVideo.Application/tools/ffmpeg
+          mv DownloaderVideo.Application/tools/ffmpeg/ffmpeg.exe DownloaderVideo.Application/tools/ffmpeg.exe
+          rm -rf DownloaderVideo.Application/tools/ffmpeg DownloaderVideo.Application/tools/ffmpeg.zip
 
       - name: Restore Dependencies
         run: dotnet restore DownloaderVideo.Application/DownloaderVideo.Application.csproj
