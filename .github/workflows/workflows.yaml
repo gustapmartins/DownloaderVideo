@@ -96,7 +96,7 @@ jobs:
           curl -L -o DownloaderVideo.Application/tools/yt-dlp.exe https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe
           curl -L -o DownloaderVideo.Application/tools/ffmpeg.zip https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip
           unzip DownloaderVideo.Application/tools/ffmpeg.zip -d DownloaderVideo.Application/tools/ffmpeg
-          mv DownloaderVideo.Application/tools/ffmpeg/ffmpeg.exe DownloaderVideo.Application/tools/ffmpeg.exe
+          mv DownloaderVideo.Application/tools/ffmpeg/ffmpeg-*-essentials_build/bin/ffmpeg.exe DownloaderVideo.Application/tools/ffmpeg.exe
           rm -rf DownloaderVideo.Application/tools/ffmpeg DownloaderVideo.Application/tools/ffmpeg.zip
 
       - name: Restore Dependencies
