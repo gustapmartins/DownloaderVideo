@@ -108,10 +108,13 @@ public class DownloaderVideoService(
                 var basePath = Path.Combine(AppContext.BaseDirectory, "tools");
                 ytDlpPath = Path.Combine(basePath, "yt-dlp.exe");
                 ffmpegLocation = basePath;
+
+                if (!File.Exists(ytDlpPath))
+                    throw new FileNotFoundException($"Arquivo não encontrado: {ytDlpPath}");
             }
 
             // Ajuste o argumento para informar o local do ffmpeg corretamente
-            arguments = $"--ffmpeg-location \"{ffmpegLocation}\" {arguments}";
+            arguments = $"--no-progress --ffmpeg-location \"{ffmpegLocation}\" {arguments}";
 
             var processStartInfo = new ProcessStartInfo
             {
