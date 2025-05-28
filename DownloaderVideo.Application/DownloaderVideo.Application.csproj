@@ -9,7 +9,7 @@
     <DockerfileContext>.</DockerfileContext>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>${NoWarn};1591</NoWarn>
-    <DefineConstants>$(DefineConstants);TEMPLATE_DEBUG</DefineConstants> 
+    <DefineConstants>$(DefineConstants);TEMPLATE_DEBUG</DefineConstants>
     <Version>1.0.0.0</Version>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
   </PropertyGroup>
@@ -24,7 +24,8 @@
     </PackageReference>
     <PackageReference Include="Microsoft.CodeCoverage" Version="17.11.1" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
-    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets"
+      Version="1.21.0" />
     <PackageReference Include="StackExchange.Redis" Version="2.8.24" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.7.3" />
@@ -32,19 +33,18 @@
     <PackageReference Include="YoutubeExplode" Version="6.5.2" />
   </ItemGroup>
 
-	<ItemGroup>
-		<!-- yt-dlp -->
-		<None Include="tools\yt-dlp.exe">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-		<!-- ffmpeg -->
-		<None Include="tools\ffmpeg.exe">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-	</ItemGroup>
+  <ItemGroup Condition="'$(OS)' == 'Windows_NT'">
+    <None Include="tools\yt-dlp.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="tools\ffmpeg.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
-	<ItemGroup>
-    <ProjectReference Include="..\DownloaderVideo.CrossCutting\DownloaderVideo.Infra.CrossCutting.csproj" />
+  <ItemGroup>
+    <ProjectReference
+      Include="..\DownloaderVideo.CrossCutting\DownloaderVideo.Infra.CrossCutting.csproj" />
     <ProjectReference Include="..\DownloaderVideo.Domain\DownloaderVideo.Domain.csproj" />
   </ItemGroup>
 
