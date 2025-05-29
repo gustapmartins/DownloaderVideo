@@ -35,6 +35,12 @@ RUN apt-get update && apt-get install -y \
 RUN curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp \
  && chmod +x /usr/local/bin/yt-dlp
 
-COPY --from=build /app/build .
+# 🟢 NOVO BLOCO: Publicar corretamente
+FROM build AS publish
+RUN dotnet publish "DownloaderVideo.Application.csproj" -c Release -o /app/publish /p:UseAppHost=false
+
+# 🟢 Copiar os arquivos publicados
+FROM final AS runtime
+COPY --from=publish /app/publish .
 
 ENTRYPOINT ["dotnet", "DownloaderVideo.Application.dll"]
