@@ -8,6 +8,16 @@ var builder = WebApplication.CreateBuilder(args);
 
 string xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
 
+var port = Environment.GetEnvironmentVariable("PORT");
+
+if (!string.IsNullOrEmpty(port))
+{
+    builder.WebHost.ConfigureKestrel(options =>
+    {
+        options.ListenAnyIP(int.Parse(port));
+    });
+}
+
 AppServiceDependencyInjection.AppServiceDependencyInjectionModule(builder.Services);
 
 DependencyInjection.ConfigureService(builder.Services, builder.Configuration, xmlFilename);
@@ -20,8 +30,9 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-        app.UseSwagger();
-        app.UseSwaggerUI();
+    app.UseSwagger();
+    app.UseSwaggerUI();
+    app.UseHttpsRedirection();  // Habilita só no dev
 }
 
 app.UseHttpsRedirection();

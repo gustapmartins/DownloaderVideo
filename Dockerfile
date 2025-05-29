@@ -1,7 +1,7 @@
 # Base Image
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
-EXPOSE 8080
+EXPOSE 80
 
 ENV ASPNETCORE_URLS=http://+:80
 ENV ASPNETCORE_ENVIRONMENT=Development
@@ -35,5 +35,5 @@ RUN curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o 
 
 COPY --from=build /app/build .
 
-EXPOSE 8080
+EXPOSE 80
 ENTRYPOINT ["dotnet", "DownloaderVideo.Application.dll"]
