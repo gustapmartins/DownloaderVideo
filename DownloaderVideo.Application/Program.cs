@@ -8,16 +8,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 string xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
 
-var port = Environment.GetEnvironmentVariable("PORT");
-
-if (!string.IsNullOrEmpty(port))
-{
-    builder.WebHost.ConfigureKestrel(options =>
-    {
-        options.ListenAnyIP(int.Parse(port));
-    });
-}
-
 AppServiceDependencyInjection.AppServiceDependencyInjectionModule(builder.Services);
 
 DependencyInjection.ConfigureService(builder.Services, builder.Configuration, xmlFilename);
