@@ -43,4 +43,7 @@ RUN dotnet publish "DownloaderVideo.Application.csproj" -c Release -o /app/publi
 FROM final AS runtime
 COPY --from=publish /app/publish .
 
+# Copiar cookies
+COPY docker-assets/cookies.txt /app/cookies.txt
+
 ENTRYPOINT ["dotnet", "DownloaderVideo.Application.dll"]

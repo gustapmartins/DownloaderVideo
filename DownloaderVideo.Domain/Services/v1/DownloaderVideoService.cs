@@ -102,6 +102,9 @@ public class DownloaderVideoService(
             {
                 ytDlpPath = "yt-dlp";            // Executável no PATH
                 ffmpegLocation = "/usr/bin";     // Pasta onde ffmpeg está instalado pelo apt (ajuste se quiser)
+                string cookiesPath = "/app/cookies.txt";
+
+                arguments = $"--no-progress --ffmpeg-location \"{ffmpegLocation}\" --cookies \"{cookiesPath}\" {arguments}";
             }
             else
             {
@@ -111,10 +114,9 @@ public class DownloaderVideoService(
 
                 if (!File.Exists(ytDlpPath))
                     throw new FileNotFoundException($"Arquivo não encontrado: {ytDlpPath}");
-            }
 
-            // Ajuste o argumento para informar o local do ffmpeg corretamente
-            arguments = $"--no-progress --ffmpeg-location \"{ffmpegLocation}\" {arguments}";
+                arguments = $"--no-progress --ffmpeg-location \"{ffmpegLocation}\" {arguments}";
+            }
 
             var processStartInfo = new ProcessStartInfo
             {
