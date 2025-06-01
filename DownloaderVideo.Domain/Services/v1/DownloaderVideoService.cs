@@ -102,9 +102,8 @@ public class DownloaderVideoService(
             {
                 ytDlpPath = "yt-dlp";            // Executável no PATH
                 ffmpegLocation = "/usr/bin";     // Pasta onde ffmpeg está instalado pelo apt (ajuste se quiser)
-                string cookiesPath = "/app/cookies.txt";
 
-                arguments = $"--no-progress --ffmpeg-location \"{ffmpegLocation}\" --cookies \"{cookiesPath}\" {arguments}";
+                arguments = $"--no-progress --ffmpeg-location \"{ffmpegLocation}\"  --cookies-from-browser chrome {arguments}";
             }
             else
             {
