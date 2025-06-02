@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using YoutubeExplode;
+using YoutubeExplode.Channels;
 
 namespace DownloaderVideo.Application.Controllers.v1;
 
@@ -100,10 +101,38 @@ public class DownloaderVideoService(
 
             if (isLinux)
             {
-                ytDlpPath = "yt-dlp";            // Executável no PATH
-                ffmpegLocation = "/usr/bin";     // Pasta onde ffmpeg está instalado pelo apt (ajuste se quiser)
+                ytDlpPath = "yt-dlp";
+                ffmpegLocation = "/usr/bin";
 
-                arguments = $"--no-progress --ffmpeg-location \"{ffmpegLocation}\"  --cookies-from-browser chrome {arguments}";
+                // Obtenha o diretório home do usuário atual.
+                // O yt-dlp por padrão procura o .netrc no diretório home.
+                // Se você armazenar em outro local, use --netrc-file /path/to/my/.netrc
+                string userHomeDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+                string netrcFilePath = Path.Combine(userHomeDirectory, ".netrc");
+
+                // Verificar se o arquivo .netrc existe e se você quer usar a autenticação.
+                // Você pode ter uma configuração para habilitar/desabilitar autenticação ou
+                // verificar se a URL exige login.
+                bool requiresAuth = true; // Ou determine isso com base na URL/configuração
+
+                if (requiresAuth)
+                {
+                    // Importante: yt-dlp procurará por ".netrc" por padrão no diretório home.
+                    // Se você quiser especificar um caminho diferente, use --netrc-file
+                    arguments = $"--no-progress --ffmpeg-location \"{ffmpegLocation}\" --netrc {arguments}";
+
+                    // Ou, se precisar especificar um caminho:
+                    // arguments = $"--no-progress --ffmpeg-location \"{ffmpegLocation}\" --netrc-file \"{netrcFilePath}\" {arguments}";
+
+                    // NOTA: Certifique-se de que o usuário da sua aplicação em produção
+                    // tenha permissão de leitura para o arquivo .netrc e que ele esteja
+                    // seguro (chmod 600).
+                }
+                else
+                {
+                    // Para vídeos que não exigem autenticação
+                    arguments = $"--no-progress --ffmpeg-location \"{ffmpegLocation}\" {arguments}";
+                }
             }
             else
             {
