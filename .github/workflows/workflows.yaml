@@ -90,6 +90,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-docker-
 
+      - name: Mover para o diretório do projeto .NET
+        # Este é o ponto CRUCIAL para corrigir o erro "not found".
+        # Assume que seu Dockerfile e a pasta docker-assets estão em 'DownloaderVideo/'.
+        run: cd DownloaderVideo/ 
+
       - name: Build Docker Image
         run: docker build --tag DownloaderVideo/application:latest -f Dockerfile .
         env:
