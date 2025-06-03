@@ -104,6 +104,8 @@ public class DownloaderVideoService(
 
                 string cookiesPath = Path.Combine(AppContext.BaseDirectory, "app", "Cookies.txt");
 
+                Console.WriteLine($"Cookies Path: {cookiesPath}");
+
                 if (File.Exists(cookiesPath))
                 {
                     arguments = $"--no-progress --ffmpeg-location \"{ffmpegLocation}\" --cookies \"{cookiesPath}\" {arguments}";
