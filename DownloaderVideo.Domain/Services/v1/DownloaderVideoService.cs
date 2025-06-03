@@ -102,9 +102,9 @@ public class DownloaderVideoService(
                 ytDlpPath = "yt-dlp"; // ou: Path.Combine(AppContext.BaseDirectory, "tools", "yt-dlp");
                 ffmpegLocation = "/usr/bin";
 
-                string cookiesPath = Path.Combine(AppContext.BaseDirectory, "app", "Cookies.txt");
+                string cookiesPath = Path.Combine(AppContext.BaseDirectory, "app", "cookies.txt");
 
-                Console.WriteLine($"Cookies Path: {cookiesPath}");
+                Console.WriteLine($"cookies Path: {cookiesPath}");
 
                 if (File.Exists(cookiesPath))
                 {
