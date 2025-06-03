@@ -44,6 +44,6 @@ FROM final AS runtime
 COPY --from=publish /app/publish .
 
 # Copiar cookies.txt do seu contexto de build (docker-assets) para dentro do container
-COPY docker-assets/cookies.txt /app/cookies.txt
+COPY docker-assets/Cookies.txt /app/Cookies.txt
 
 ENTRYPOINT ["dotnet", "DownloaderVideo.Application.dll"]
