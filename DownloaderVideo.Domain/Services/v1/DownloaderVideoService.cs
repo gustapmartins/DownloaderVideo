@@ -99,15 +99,18 @@ public class DownloaderVideoService(
 
             if (isLinux)
             {
+                Console.WriteLine("DEBUG: Entrou no bloco isLinux."); // *** Novo log ***
+
                 ytDlpPath = "yt-dlp"; // ou: Path.Combine(AppContext.BaseDirectory, "tools", "yt-dlp");
                 ffmpegLocation = "/usr/bin";
 
-                string cookiesPath = Path.Combine(AppContext.BaseDirectory, "app", "cookies.txt");
+                string cookiesPath = Path.Combine(AppContext.BaseDirectory, "cookies.txt");
 
                 Console.WriteLine($"cookies Path: {cookiesPath}");
 
                 if (File.Exists(cookiesPath))
                 {
+                    Console.WriteLine($"cookies Path: {cookiesPath}, dentro do arquivo existente");
                     arguments = $"--no-progress --ffmpeg-location \"{ffmpegLocation}\" --cookies \"{cookiesPath}\" {arguments}";
                 }
                 else
