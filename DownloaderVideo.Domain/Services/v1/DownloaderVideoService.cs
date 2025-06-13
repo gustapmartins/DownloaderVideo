@@ -1,12 +1,10 @@
+using System.Diagnostics;
+using System.Text.RegularExpressions;
 using DownloaderVideo.Domain.Entity;
 using DownloaderVideo.Domain.Interface.Services.v1;
 using Microsoft.AspNetCore.Http;
 using MongoDB.Driver;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
-using System.Text.RegularExpressions;
 using YoutubeExplode;
-using YoutubeExplode.Channels;
 
 namespace DownloaderVideo.Application.Controllers.v1;
 
@@ -106,7 +104,7 @@ public class DownloaderVideoService(
 
                 string cookiesPath = Path.Combine(AppContext.BaseDirectory, "cookies.txt");
 
-                Console.WriteLine($"cookies Path: {cookiesPath}");
+                Console.WriteLine($"cookies Path: {cookiesPath}, {AppContext.BaseDirectory}");
 
                 if (File.Exists(cookiesPath))
                 {
